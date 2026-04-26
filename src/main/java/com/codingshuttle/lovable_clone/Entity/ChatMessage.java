@@ -4,6 +4,8 @@ import com.codingshuttle.lovable_clone.Entity.enums.MessageRole;
 
 import java.time.Instant;
 
+
+
 public class ChatMessage {
 
     Long id;
