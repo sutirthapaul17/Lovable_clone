@@ -1,17 +1,30 @@
 package com.codingshuttle.lovable_clone.Service;
 
-import com.codingshuttle.lovable_clone.Dto.Subscription.CheckoutRequest;
-import com.codingshuttle.lovable_clone.Dto.Subscription.CheckoutResponse;
-import com.codingshuttle.lovable_clone.Dto.Subscription.PortalResponse;
 import com.codingshuttle.lovable_clone.Dto.Subscription.SubscriptionResponse;
-import org.jspecify.annotations.Nullable;
+import com.codingshuttle.lovable_clone.Entity.enums.SubscriptionStatus;
+
+import java.time.Instant;
 
 public interface SubscriptionService {
-    SubscriptionResponse getCurrentSubscription(Long userId);
+    SubscriptionResponse getCurrentSubscription();
+
+    void activateSubscription(long userId, long planId, String subscriptionId, String customerId);
+
+    void updateSubscription(String gatewaySubscriptionId, SubscriptionStatus status, Instant periodStart, Instant periodEnd, Boolean cancelAtPeriodEnd, Long planId);
+
+    void cancelSubscription(String gatewaySubscriptionId
+    );
+
+    void renewSubscriptionPeriod(String subId, Instant periodStart, Instant periodEnd);
+
+    void markSubscriptionPastDue(String subId);
+
+    boolean canCreateNewProject();
+
+
 
 //    CheckoutResponse createCheckoutSessionurl(CheckoutRequest request);
 //
 //    PortalResponse openCustomPortal(Long userId);
-
 
 }

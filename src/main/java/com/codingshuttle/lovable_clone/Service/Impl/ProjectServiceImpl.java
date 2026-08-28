@@ -13,6 +13,8 @@ import com.codingshuttle.lovable_clone.Repository.ProjectMemberReposirtory;
 import com.codingshuttle.lovable_clone.Repository.ProjectRepository;
 import com.codingshuttle.lovable_clone.Repository.UserRepository;
 import com.codingshuttle.lovable_clone.Service.ProjectService;
+import com.codingshuttle.lovable_clone.Service.SubscriptionService;
+import com.codingshuttle.lovable_clone.error.BadRequestException;
 import com.codingshuttle.lovable_clone.error.ResourceNotFoundException;
 import com.codingshuttle.lovable_clone.security.AuthUtil;
 import lombok.AccessLevel;
@@ -37,14 +39,21 @@ public class ProjectServiceImpl implements ProjectService {
     ProjectMapper projectMapper;
     ProjectMemberReposirtory projectMemberReposirtory;
     AuthUtil authUtil;
+    SubscriptionService subscriptionService;
 
     @Override
     public ProjectResponse createProject(ProjectRequest request) {
+        if(!subscriptionService.canCreateNewProject()){
+            throw new BadRequestException("User cannot create New projects with current plan, Upgrade your subscription");
+        }
+
         Long userId = authUtil.getCurrentUserId();
 //        User owner = userRepository.findById(userId).orElseThrow(
 //                () -> new ResourceNotFoundException("User",userId.toString())
 //        );
         User owner = userRepository.getReferenceById(userId);
+
+
 
         //create Project
         Project project = Project.builder()

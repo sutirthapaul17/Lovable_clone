@@ -47,8 +47,7 @@ public class BillingController {
     
     @GetMapping("/api/me/subscription")
     public ResponseEntity<SubscriptionResponse> getMySubscription(){
-        Long userId = 1L;
-        return ResponseEntity.ok(subscriptionService.getCurrentSubscription(userId));
+        return ResponseEntity.ok(subscriptionService.getCurrentSubscription());
     }
 
 
@@ -62,12 +61,11 @@ public class BillingController {
 
     @PostMapping("/api/payments/portal")
     public ResponseEntity<PortalResponse> openCustomPortal(){
-        Long userId = 1L;
-        return ResponseEntity.ok(paymentProcessor.openCustomPortal(userId));
+        return ResponseEntity.ok(paymentProcessor.openCustomPortal());
     };
 
 
-    @PostMapping("/webhooks/payment")
+    @PostMapping("/webhooks/payments")
     public ResponseEntity<String> handlePaymentWebhooks(
             @RequestBody String payload,
             @RequestHeader("Stripe-Signature") String sigHeader
