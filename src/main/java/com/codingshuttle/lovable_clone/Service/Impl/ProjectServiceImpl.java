@@ -13,6 +13,7 @@ import com.codingshuttle.lovable_clone.Repository.ProjectMemberReposirtory;
 import com.codingshuttle.lovable_clone.Repository.ProjectRepository;
 import com.codingshuttle.lovable_clone.Repository.UserRepository;
 import com.codingshuttle.lovable_clone.Service.ProjectService;
+import com.codingshuttle.lovable_clone.Service.ProjectTemplateService;
 import com.codingshuttle.lovable_clone.Service.SubscriptionService;
 import com.codingshuttle.lovable_clone.error.BadRequestException;
 import com.codingshuttle.lovable_clone.error.ResourceNotFoundException;
@@ -20,6 +21,7 @@ import com.codingshuttle.lovable_clone.security.AuthUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true,level = AccessLevel.PRIVATE)
 @Transactional
+@Slf4j
 public class ProjectServiceImpl implements ProjectService {
 
     ProjectRepository projectRepository;
@@ -40,9 +43,11 @@ public class ProjectServiceImpl implements ProjectService {
     ProjectMemberReposirtory projectMemberReposirtory;
     AuthUtil authUtil;
     SubscriptionService subscriptionService;
+    ProjectTemplateService projectTemplateService;
 
     @Override
     public ProjectResponse createProject(ProjectRequest request) {
+        log.info("========== CREATE PROJECT START ==========");
         if(!subscriptionService.canCreateNewProject()){
             throw new BadRequestException("User cannot create New projects with current plan, Upgrade your subscription");
         }
@@ -63,6 +68,8 @@ public class ProjectServiceImpl implements ProjectService {
                 .build();
 
         project = projectRepository.save(project);
+        log.info("========== PROJECT SAVED ==========");
+        log.info("Project ID = {}", project.getId());
 
         ProjectMemberId projectMemberId = new ProjectMemberId(project.getId(), owner.getId());
 
@@ -75,6 +82,13 @@ public class ProjectServiceImpl implements ProjectService {
                 .project(project)
                 .build();
         projectMemberReposirtory.save(projectMember);
+
+
+        log.info("========== CALLING TEMPLATE INITIALIZATION ==========");
+
+        projectTemplateService.initializeProjectFromTemplate(project.getId());
+
+        log.info("========== TEMPLATE INITIALIZATION FINISHED ==========");
 
         return projectMapper.toProjectResponse(project);
     }

@@ -1,6 +1,7 @@
 package com.codingshuttle.lovable_clone.security;
 
 
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +26,9 @@ public class WebSecurityConfig {
         httpSecurity
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**","/webhooks/**").permitAll()
+                .authorizeHttpRequests(auth ->auth
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
+                        .requestMatchers("/api/auth/**","/webhooks/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
